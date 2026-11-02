@@ -12,7 +12,8 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildMessageReactions
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildModeration
   ],
   partials: [Partials.Message, Partials.Reaction, Partials.Channel]
 });
@@ -29,6 +30,8 @@ client.once('ready', () => {
 const eventFiles = [
   'antinuke',
   'antiraid',
+  'antibot',
+  'leveling',
   'messages',
   'filters',
   'starboard',
