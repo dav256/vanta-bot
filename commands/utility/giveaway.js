@@ -1,4 +1,4 @@
-const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
   name: 'giveaway',
@@ -25,14 +25,28 @@ module.exports = {
     }
 
     const end = Date.now() + ms;
+    const endTimestamp = Math.floor(end / 1000);
 
     const embed = new EmbedBuilder()
-      .setColor(0xFFFFFF)
-      .setTitle('🎉 Giveaway!')
-      .setDescription(`**Prize:** ${prize}\n**Winners:** ${winners}\n**Ends:** <t:${Math.floor(end / 1000)}:R>\n\nReact with 🎉 to enter!`)
+      .setColor(0x2B2D31)
+      .setTitle(prize)
+      .setDescription(`**Ends:** <t:${endTimestamp}:R>\n\nReact with 🎉 to enter!`)
       .setFooter({ text: `Hosted by ${message.author.tag}` });
 
-    const msg = await message.channel.send({ embeds: [embed] });
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('giveaway_enter')
+        .setLabel('0')
+        .setEmoji('🎉')
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId('giveaway_participants')
+        .setLabel('Participants')
+        .setEmoji('👤')
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+    const msg = await message.channel.send({ embeds: [embed], components: [row] });
     await msg.react('🎉');
 
     setTimeout(async () => {
@@ -41,12 +55,38 @@ module.exports = {
       const users = await reaction.users.fetch();
       const entries = users.filter(u => !u.bot).map(u => u);
 
-      if (!entries.length) {
-        return message.channel.send('No one entered the giveaway.');
-      }
+      const winner = entries.length ? entries[Math.floor(Math.random() * entries.length)] : null;
+      const endedEmbed = new EmbedBuilder()
+        .setColor(0x2B2D31)
+        .setTitle(prize)
+        .setDescription(
+          winner
+            ? `**Winner:** ${winner}\n**Hosted by:** ${message.author}\n\nEnded at | <t:${endTimestamp}:f>`
+            : `**No winner**\n**Hosted by:** ${message.author}\n\nEnded at | <t:${endTimestamp}:f>`
+        );
 
-      const winner = entries[Math.floor(Math.random() * entries.length)];
-      message.channel.send(`🎉 Congratulations ${winner}! You won **${prize}**!`);
+      const endedRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('giveaway_enter')
+          .setLabel(entries.length.toString())
+          .setEmoji('🎉')
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('giveaway_participants')
+          .setLabel('Participants')
+          .setEmoji('👤')
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(true)
+      );
+
+      await fetched.edit({ embeds: [endedEmbed], components: [endedRow] });
+
+      if (winner) {
+        message.channel.send(`🎉 Congratulations ${winner}! You won **${prize}**!`);
+      } else {
+        message.channel.send('No one entered the giveaway.');
+      }
     }, ms);
   }
 };
