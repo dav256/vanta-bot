@@ -1,55 +1,34 @@
 # Vanta Bot
 
-Discord.js v14 multipurpose bot (moderation, security, economy, voice, tickets, etc.)
+Discord.js v14 multipurpose bot inspired by Greed and Bleed.
+
+## Commands
+
+### Moderation
+- `!ban @user [reason]`
+- `!kick @user [reason]`
+- `!warn @user [reason]`
+- `!timeout @user <duration> [reason]` (e.g. 10m, 1h)
+
+### Utility
+- `!embed {title: Hello} {description: World}` — Create custom embeds with variables
+- `!emojis` — List server emojis
+
+### Economy
+- `!balance`
+- `!daily`
+- `!pay @user amount`
+
+### Fun
+- `!hug @user`
+
+### Embed Script Variables
+- `{user.mention}`, `{user.tag}`, `{user.avatar}`
+- `{guild.name}`, `{guild.count}`, `{guild.icon}`
+
+More features (welcome, giveaways, tickets, reaction roles, starboard, etc.) coming soon.
 
 ## Setup
-
-1. `npm install`
-2. Create `.env` with:
-   ```
-   TOKEN=your_bot_token
-   PREFIX=!
-   ```
-3. `node index.js`
-
-## Structure
-
-```
-commands/     — All commands (auto-loaded)
-events/       — Event handlers
-handlers/     — Command + message handlers
-utils/        — Helpers (scripting, economy, cases, etc.)
-data/         — JSON storage (auto-created)
-```
-
-## Emoji command
-
-```
-!emojis
-```
-
-Lists every custom emoji in the server with the full `<:name:id>` string so you can copy them into `emojis.js`.
-
-## Features
-
-- Moderation (ban, kick, warn, timeout, jail, mutes)
-- Antinuke + Antiraid
-- Filters + Word filter
-- Starboard
-- Autoresponders
-- Cases
-- Welcome / Goodbye (embed + Components V2 scripting)
-- Reaction roles
-- Tickets
-- Giveaways
-- Snipe
-- Sticky messages
-- VoiceMaster
-- Economy
-- Fake permissions
-
-## Notes
-
-- All data stored in `data/` as JSON
-- White/neutral embeds
-- Requires discord.js v14.18+ for Components V2
+1. npm install
+2. Create .env with TOKEN and PREFIX
+3. node index.js
