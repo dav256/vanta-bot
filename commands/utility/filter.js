@@ -30,14 +30,8 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('🚫 Filters / Automod')
-          .setDescription(
-            '`!filter add word` — Block a word\n' +
-            '`!filter remove word` — Unblock a word\n' +
-            '`!filter links on/off` — Toggle link blocking\n' +
-            '`!filter caps on/off` — Toggle excessive caps\n' +
-            '`!filter list` — Show settings'
-          )]
+          .setTitle('Filters')
+          .setDescription('!filter add word\n!filter remove word\n!filter links on/off\n!filter caps on/off\n!filter list')]
       });
     }
 
@@ -46,4 +40,33 @@ module.exports = {
       if (!word) return message.reply('Provide a word.');
       if (!data[guildId].words.includes(word)) data[guildId].words.push(word);
       saveData(data);
-      return message.reply(`✅ Blocked \
+      return message.reply('Blocked ' + word);
+    }
+
+    if (sub === 'remove') {
+      const word = args.slice(1).join(' ').toLowerCase();
+      data[guildId].words = data[guildId].words.filter(w => w !== word);
+      saveData(data);
+      return message.reply('Removed ' + word);
+    }
+
+    if (sub === 'links') {
+      data[guildId].links = args[1] === 'on';
+      saveData(data);
+      return message.reply('Link filter: ' + (data[guildId].links ? 'on' : 'off'));
+    }
+
+    if (sub === 'caps') {
+      data[guildId].caps = args[1] === 'on';
+      saveData(data);
+      return message.reply('Caps filter: ' + (data[guildId].caps ? 'on' : 'off'));
+    }
+
+    if (sub === 'list') {
+      const c = data[guildId];
+      return message.reply('Words: ' + (c.words.join(', ') || 'none') + '\nLinks: ' + c.links + '\nCaps: ' + c.caps);
+    }
+
+    return message.reply('Use !filter help');
+  }
+};
