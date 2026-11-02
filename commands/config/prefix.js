@@ -25,8 +25,8 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('⚙️ Prefix')
-          .setDescription('Usage: `!prefix !` or `!prefix ,`\n\nThis changes the prefix only for this server.')]
+          .setTitle('Prefix')
+          .setDescription('Usage: !prefix ! or !prefix ,')]
       });
     }
 
@@ -34,4 +34,6 @@ module.exports = {
     data[message.guild.id] = newPrefix;
     saveData(data);
 
-    return message.reply(`✅ Prefix set to \
+    return message.reply('Prefix set to ' + newPrefix);
+  }
+};
