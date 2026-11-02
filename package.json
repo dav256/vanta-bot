@@ -4,7 +4,8 @@
   "description": "Vanta Discord bot",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "upload-emojis": "node scripts/upload_app_emojis.js"
   },
   "dependencies": {
     "discord.js": "^14.18.0",

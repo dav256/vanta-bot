@@ -3,6 +3,7 @@ const { loadCommands } = require('./handlers/commandHandler');
 const messageHandler = require('./handlers/messageHandler');
 const slashHandler = require('./handlers/slashHandler');
 const path = require('path');
+const { loadAppEmojis } = require('./utils/emojis');
 require('dotenv').config();
 
 const client = new Client({
@@ -20,10 +21,12 @@ const client = new Client({
 
 const PREFIX = process.env.PREFIX || '!';
 
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
   const commandsPath = path.join(__dirname, 'commands');
   loadCommands(client, commandsPath);
+  // Application emojis (falls back to Unicode if none are uploaded)
+  await loadAppEmojis(client);
 });
 
 // Safely load event handlers — missing files will not crash the bot

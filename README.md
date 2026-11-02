@@ -32,3 +32,10 @@ More features (welcome, giveaways, tickets, reaction roles, starboard, etc.) com
 1. npm install
 2. Create .env with TOKEN and PREFIX
 3. node index.js
+
+## Application emojis
+Vanta uses application emojis (VoiceMaster interface, tickets, etc.) and falls back to Unicode when they are missing.
+- Icons live in `assets/emojis/` (file name = emoji name: activity, claim, decrease, disconnect, ghost, increase, information, lock, reveal, unlock).
+- Upload them once (skips names that already exist, safe to rerun): `npm run upload-emojis` or `node scripts/upload_app_emojis.js [folder]` (uses `TOKEN` from `.env`/env).
+- On startup the bot fetches its application emojis by name (`utils/emojis.js`: `emoji(name)` for text, `buttonEmoji(name)` for buttons).
+- Re-run `!voicemaster setup` to post the new 10-button interface.

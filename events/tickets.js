@@ -1,3 +1,4 @@
+const { buttonEmoji } = require('../utils/emojis');
 const { ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -48,7 +49,7 @@ module.exports = (client) => {
         .setTitle('Ticket Opened')
         .setDescription(interaction.user.toString() + ' opened a ticket.')],
       components: [new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket_close').setLabel('Close').setStyle(ButtonStyle.Danger)
+        new ButtonBuilder().setCustomId('ticket_close').setLabel('Close').setEmoji(buttonEmoji('lock')).setStyle(ButtonStyle.Danger)
       )]
     });
 

@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +32,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('🔐 Fake Permissions')
+          .setTitle(`${emoji('lock')} Fake Permissions`)
           .setDescription(
             '`!fakeperms add @role` — Give a role access to mod commands\n' +
             '`!fakeperms remove @role` — Remove access\n' +

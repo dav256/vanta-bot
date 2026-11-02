@@ -1,5 +1,6 @@
 const { EmbedBuilder, PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
+const { emoji, buttonEmoji } = require('../../utils/emojis');
 const path = require('path');
 
 const dataPath = path.join(__dirname, '../../data/voicemaster.json');
@@ -31,7 +32,7 @@ module.exports = {
           .setDescription(
             '`!voicemaster setup` — Create the Join to Create channel + interface\n\n' +
             'Members join the hub channel and get their own temporary VC.\n' +
-            'They can lock, unlock, ghost, and manage it with buttons.'
+            'They can lock, unlock, ghost, reveal, claim and manage it with the interface buttons.'
           )]
       });
     }
@@ -53,21 +54,43 @@ module.exports = {
       parent: category.id
     });
 
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('vm_lock').setEmoji('🔒').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('vm_unlock').setEmoji('🔓').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('vm_ghost').setEmoji('👻').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('vm_reveal').setEmoji('👁').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('vm_disconnect').setEmoji('🔌').setStyle(ButtonStyle.Danger)
+    const button = (id, name, style = ButtonStyle.Secondary) =>
+      new ButtonBuilder().setCustomId(`vm_${id}`).setEmoji(buttonEmoji(name)).setStyle(style);
+
+    const row1 = new ActionRowBuilder().addComponents(
+      button('lock', 'lock'),
+      button('unlock', 'unlock'),
+      button('ghost', 'ghost'),
+      button('reveal', 'reveal'),
+      button('claim', 'claim')
+    );
+    const row2 = new ActionRowBuilder().addComponents(
+      button('disconnect', 'disconnect', ButtonStyle.Danger),
+      button('activity', 'activity'),
+      button('information', 'information'),
+      button('increase', 'increase'),
+      button('decrease', 'decrease')
     );
 
     await interfaceChannel.send({
       embeds: [new EmbedBuilder()
         .setColor(0x2B2D31)
-        .setTitle('VoiceMaster Controls')
-        .setDescription('🔒 Lock • 🔓 Unlock • 👻 Ghost • 👁 Reveal • 🔌 Disconnect')
+        .setTitle('VoiceMaster Interface')
+        .setDescription(
+          'Click the buttons below to control your voice channel.\n\n' +
+          `${emoji('lock')} — **Lock** the voice channel\n` +
+          `${emoji('unlock')} — **Unlock** the voice channel\n` +
+          `${emoji('ghost')} — **Ghost** (hide) the voice channel\n` +
+          `${emoji('reveal')} — **Reveal** the voice channel\n` +
+          `${emoji('claim')} — **Claim** the voice channel\n` +
+          `${emoji('disconnect')} — **Disconnect** from the voice channel\n` +
+          `${emoji('activity')} — **Start** an activity\n` +
+          `${emoji('information')} — **View** channel information\n` +
+          `${emoji('increase')} — **Increase** the user limit\n` +
+          `${emoji('decrease')} — **Decrease** the user limit`
+        )
       ],
-      components: [row]
+      components: [row1, row2]
     });
 
     const data = getData();
