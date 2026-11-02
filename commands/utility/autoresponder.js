@@ -31,20 +31,34 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('💬 Autoresponders')
-          .setDescription(
-            '`!ar add trigger | response` — Add one\n' +
-            '`!ar remove trigger` — Remove one\n' +
-            '`!ar list` — Show all'
-          )]
+          .setTitle('Autoresponders')
+          .setDescription('!ar add trigger | response\n!ar remove trigger\n!ar list')]
       });
     }
 
     if (sub === 'add') {
       const rest = args.slice(1).join(' ');
-      const [trigger, ...respParts] = rest.split('|');
-      const response = respParts.join('|').trim();
-      if (!trigger || !response) return message.reply('Usage: `!ar add hello | Hi there!`');
-      data[guildId][trigger.trim().toLowerCase()] = response.trim();
+      const parts = rest.split('|');
+      const trigger = parts[0]?.trim();
+      const response = parts.slice(1).join('|').trim();
+      if (!trigger || !response) return message.reply('Usage: !ar add hello | Hi there!');
+      data[guildId][trigger.toLowerCase()] = response;
       saveData(data);
-      return message.reply(`✅ Autoresponder added for \
+      return message.reply('Autoresponder added for ' + trigger);
+    }
+
+    if (sub === 'remove') {
+      const trigger = args.slice(1).join(' ').toLowerCase();
+      delete data[guildId][trigger];
+      saveData(data);
+      return message.reply('Removed.');
+    }
+
+    if (sub === 'list') {
+      const list = Object.keys(data[guildId]).join(', ') || 'None';
+      return message.reply('Autoresponders: ' + list);
+    }
+
+    return message.reply('Use !ar help');
+  }
+};
