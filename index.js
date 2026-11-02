@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { loadCommands } = require('./handlers/commandHandler');
 const messageHandler = require('./handlers/messageHandler');
 const slashHandler = require('./handlers/slashHandler');
+const path = require('path');
 require('dotenv').config();
 
 const client = new Client({
@@ -20,7 +21,9 @@ const PREFIX = process.env.PREFIX || '!';
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
-  loadCommands(client, './commands');
+  // Use absolute path so the host always finds the commands folder
+  const commandsPath = path.join(__dirname, 'commands');
+  loadCommands(client, commandsPath);
 });
 
 // Events
