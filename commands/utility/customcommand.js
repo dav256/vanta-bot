@@ -31,20 +31,34 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('⚙️ Custom Commands')
-          .setDescription(
-            '`!cc add name | response` — Create a command\n' +
-            '`!cc remove name` — Delete one\n' +
-            '`!cc list` — Show all'
-          )]
+          .setTitle('Custom Commands')
+          .setDescription('!cc add name | response\n!cc remove name\n!cc list')]
       });
     }
 
     if (sub === 'add') {
       const rest = args.slice(1).join(' ');
-      const [name, ...respParts] = rest.split('|');
-      const response = respParts.join('|').trim();
-      if (!name || !response) return message.reply('Usage: `!cc add rules | Check the rules channel!`');
-      data[guildId][name.trim().toLowerCase()] = response.trim();
+      const parts = rest.split('|');
+      const name = parts[0]?.trim();
+      const response = parts.slice(1).join('|').trim();
+      if (!name || !response) return message.reply('Usage: !cc add rules | Check the rules channel!');
+      data[guildId][name.toLowerCase()] = response;
       saveData(data);
-      return message.reply(`✅ Custom command \
+      return message.reply('Custom command added: ' + name);
+    }
+
+    if (sub === 'remove') {
+      const name = args.slice(1).join(' ').toLowerCase();
+      delete data[guildId][name];
+      saveData(data);
+      return message.reply('Removed.');
+    }
+
+    if (sub === 'list') {
+      const list = Object.keys(data[guildId]).join(', ') || 'None';
+      return message.reply('Custom commands: ' + list);
+    }
+
+    return message.reply('Use !cc help');
+  }
+};
