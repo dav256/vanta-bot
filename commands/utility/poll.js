@@ -20,10 +20,23 @@ module.exports = {
   description: 'Create a poll or election',
   permissions: [PermissionFlagsBits.ManageMessages],
   async execute(message, args) {
-    const title = args.join(' ') || 'Poll';
-    if (!title) return message.reply('Usage: `!poll Title of the poll`');
+    if (!args.length) {
+      return message.reply({
+        embeds: [new EmbedBuilder()
+          .setColor(0x2B2D31)
+          .setTitle('How to use !poll')
+          .setDescription(
+            '**Step 1:** Type `!poll` followed by the poll title.\n\n' +
+            '**Example:**\n' +
+            '`!poll Staff Elections`\n\n' +
+            '**Step 2:** The bot will create a poll with buttons.\n' +
+            'People click the buttons to vote.\n\n' +
+            '**Note:** Right now it uses default options. Full custom options coming soon.'
+          )]
+      });
+    }
 
-    // Simple options for demo — user can expand later
+    const title = args.join(' ');
     const options = ['Option 1', 'Option 2', 'Option 3'];
 
     const embed = new EmbedBuilder()
@@ -49,7 +62,6 @@ module.exports = {
 
     const msg = await message.channel.send({ embeds: [embed], components: rows });
 
-    // Store poll data
     const data = getData();
     data[msg.id] = {
       title,
