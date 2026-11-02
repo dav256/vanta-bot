@@ -21,25 +21,35 @@ const PREFIX = process.env.PREFIX || '!';
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
-  // Use absolute path so the host always finds the commands folder
   const commandsPath = path.join(__dirname, 'commands');
   loadCommands(client, commandsPath);
 });
 
-// Events
-require('./events/antinuke')(client);
-require('./events/antiraid')(client);
-require('./events/messages')(client);
-require('./events/filters')(client);
-require('./events/starboard')(client);
-require('./events/autoresponders')(client);
-require('./events/voicemaster')(client);
-require('./events/reactionroles')(client);
-require('./events/tickets')(client);
-require('./events/giveaways')(client);
-require('./events/snipe')(client);
-require('./events/sticky')(client);
-require('./events/wordfilter')(client);
+// Safely load event handlers — missing files will not crash the bot
+const eventFiles = [
+  'antinuke',
+  'antiraid',
+  'messages',
+  'filters',
+  'starboard',
+  'autoresponders',
+  'voicemaster',
+  'reactionroles',
+  'tickets',
+  'giveaways',
+  'snipe',
+  'sticky',
+  'wordfilter'
+];
+
+for (const name of eventFiles) {
+  try {
+    require(`./events/${name}`)(client);
+    console.log(`[Events] Loaded: ${name}`);
+  } catch (err) {
+    console.warn(`[Events] Skipped ${name}: ${err.message}`);
+  }
+}
 
 messageHandler(client, PREFIX);
 slashHandler(client);
