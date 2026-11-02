@@ -1,3 +1,4 @@
+const { emoji } = require('../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -38,7 +39,7 @@ module.exports = (client) => {
       if (channel) channel.send({
         embeds: [new EmbedBuilder()
           .setColor(0xFF0000)
-          .setTitle('Antiraid Triggered')
+          .setTitle(`${emoji('warn')} Antiraid Triggered`)
           .setDescription(`${joins.length} joins detected in ${cfg.timeWindow}s. Latest member actioned.`)]
       }).catch(() => {});
     }

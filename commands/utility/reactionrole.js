@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -41,6 +42,6 @@ module.exports = {
       await msg.react(emoji);
     } catch {}
 
-    return message.reply(`Reaction role added: ${emoji} → ${role}`);
+    return message.reply(`${emoji('success')} Reaction role added: ${emoji} → ${role}`);
   }
 };

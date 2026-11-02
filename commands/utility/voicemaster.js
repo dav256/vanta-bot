@@ -28,7 +28,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('🎤 VoiceMaster')
+          .setTitle(`${emoji('voicemaster')} VoiceMaster`)
           .setDescription(
             '`!voicemaster setup` — Create the Join to Create channel + interface\n\n' +
             'Members join the hub channel and get their own temporary VC.\n' +
@@ -75,7 +75,7 @@ module.exports = {
     await interfaceChannel.send({
       embeds: [new EmbedBuilder()
         .setColor(0x2B2D31)
-        .setTitle('VoiceMaster Interface')
+        .setTitle(`${emoji('voicemaster')} VoiceMaster Interface`)
         .setDescription(
           'Click the buttons below to control your voice channel.\n\n' +
           `${emoji('lock')} — **Lock** the voice channel\n` +
@@ -97,6 +97,6 @@ module.exports = {
     data[message.guild.id] = { hub: hub.id, category: category.id, interface: interfaceChannel.id };
     saveData(data);
 
-    return message.reply('✅ VoiceMaster set up.');
+    return message.reply(`${emoji('success')} VoiceMaster set up.`);
   }
 };

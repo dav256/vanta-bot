@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +32,7 @@ module.exports = {
       if (!channel) return message.reply('Mention a channel.');
       data[guildId].channel = channel.id;
       saveData(data);
-      return message.reply(`Welcome channel set to ${channel}.`);
+      return message.reply(`${emoji('welcome')} Welcome channel set to ${channel}.`);
     }
 
     if (sub === 'message') {
@@ -39,7 +40,7 @@ module.exports = {
       if (!text) return message.reply('Provide a welcome message. Supports {user}, {guild}, {count}.');
       data[guildId].message = text;
       saveData(data);
-      return message.reply('Welcome message set.');
+      return message.reply(`${emoji('success')} Welcome message set.`);
     }
 
     return message.reply('Usage: `!welcome channel #channel` or `!welcome message Your message here`');

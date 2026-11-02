@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 const economy = require('../../utils/economy');
 
@@ -12,7 +13,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0xFFFFFF)
-        .setDescription(`You claimed **${result.amount}** coins! Balance: **${result.balance}**`)]
+        .setDescription(`${emoji('daily')} You claimed **${result.amount}** coins! Balance: **${result.balance}**`)]
     });
   }
 };

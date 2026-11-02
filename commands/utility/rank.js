@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0x2B2D31)
-        .setTitle(`${target.tag}'s Rank`)
+        .setTitle(`${emoji('stats')} ${target.tag}'s Rank`)
         .setThumbnail(target.displayAvatarURL({ dynamic: true }))
         .addFields(
           { name: 'Level', value: String(userData.level), inline: true },

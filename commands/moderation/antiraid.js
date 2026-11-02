@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antiraid')
+          .setTitle(`${emoji('shield')} Antiraid`)
           .setDescription(
             '`!antiraid enable` — Turn on\n' +
             '`!antiraid disable` — Turn off\n' +
@@ -83,7 +84,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antiraid Status')
+          .setTitle(`${emoji('shield')} Antiraid Status`)
           .addFields(
             { name: 'Enabled', value: c.enabled ? 'Yes' : 'No', inline: true },
             { name: 'Max Joins', value: String(c.maxJoins), inline: true },

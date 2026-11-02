@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -24,7 +25,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('How to use !poll')
+          .setTitle(`${emoji('stats')} How to use !poll`)
           .setDescription(
             '**Step 1:** Type `!poll` followed by the poll title.\n\n' +
             '**Example:**\n' +

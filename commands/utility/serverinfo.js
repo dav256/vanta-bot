@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -9,7 +10,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor(0xFFFFFF)
-      .setTitle(guild.name)
+      .setTitle(`${emoji('server')} ${guild.name}`)
       .setThumbnail(guild.iconURL({ dynamic: true }))
       .addFields(
         { name: 'Owner', value: `<@${guild.ownerId}>`, inline: true },
@@ -17,7 +18,7 @@ module.exports = {
         { name: 'Channels', value: `${guild.channels.cache.size}`, inline: true },
         { name: 'Roles', value: `${guild.roles.cache.size}`, inline: true },
         { name: 'Created', value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:R>`, inline: true },
-        { name: 'Boosts', value: `${guild.premiumSubscriptionCount || 0}`, inline: true }
+        { name: 'Boosts', value: `${emoji(['boost', 'boost_level1', 'boost_level2', 'boost_level3'][guild.premiumTier] || 'boost')} ${guild.premiumSubscriptionCount || 0}`, inline: true }
       );
 
     return message.reply({ embeds: [embed] });

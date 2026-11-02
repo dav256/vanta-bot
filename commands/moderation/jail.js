@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -33,7 +34,7 @@ module.exports = {
         return message.reply({
           embeds: [new EmbedBuilder()
             .setColor(0x2B2D31)
-            .setTitle('Jail Setup')
+            .setTitle(`${emoji('jail')} Jail Setup`)
             .setDescription('Usage: `!jail setup @JailRole #jail-channel`\n\nThis role will be applied when someone is jailed. They should only be able to see the jail channel.')]
         });
       }
@@ -59,7 +60,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Jail Commands')
+          .setTitle(`${emoji('jail')} Jail Commands`)
           .setDescription('`!jail setup @role #channel` — Configure jail\n`!jail @user [reason]` — Jail a member\n`!jail unjail @user` — Release a member')]
       });
     }
@@ -74,7 +75,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0x2B2D31)
-        .setTitle('Jailed')
+        .setTitle(`${emoji('jail')} Jailed`)
         .setDescription(`${target.user.tag} has been jailed.\n**Reason:** ${reason}`)]
     });
   }

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "upload-emojis": "node scripts/upload_app_emojis.js"
+    "upload-emojis": "node scripts/upload_app_emojis.js",
+    "verify-emojis": "node scripts/verify_emoji_aliases.js"
   },
   "dependencies": {
     "discord.js": "^14.18.0",

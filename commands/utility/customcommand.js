@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +32,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Custom Commands')
+          .setTitle(`${emoji('add')} Custom Commands`)
           .setDescription('!cc add name | response\n!cc remove name\n!cc list')]
       });
     }

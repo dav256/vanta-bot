@@ -1,3 +1,4 @@
+const { emoji, buttonEmoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('How to use !giveaway')
+          .setTitle(`${emoji('giveaway')} How to use !giveaway`)
           .setDescription(
             '**Step 1:** Duration (how long it runs)\n' +
             '**Step 2:** Number of winners\n' +
@@ -52,12 +53,12 @@ module.exports = {
       new ButtonBuilder()
         .setCustomId('giveaway_enter')
         .setLabel('0')
-        .setEmoji('🎉')
+        .setEmoji(buttonEmoji('giveaway'))
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId('giveaway_participants')
         .setLabel('Participants')
-        .setEmoji('👤')
+        .setEmoji(buttonEmoji('member'))
         .setStyle(ButtonStyle.Secondary)
     );
 
@@ -84,13 +85,13 @@ module.exports = {
         new ButtonBuilder()
           .setCustomId('giveaway_enter')
           .setLabel(entries.length.toString())
-          .setEmoji('🎉')
+          .setEmoji(buttonEmoji('giveaway'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('giveaway_participants')
           .setLabel('Participants')
-          .setEmoji('👤')
+          .setEmoji(buttonEmoji('member'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(true)
       );
@@ -98,7 +99,7 @@ module.exports = {
       await fetched.edit({ embeds: [endedEmbed], components: [endedRow] });
 
       if (winner) {
-        message.channel.send(`🎉 Congratulations ${winner}! You won **${prize}**!`);
+        message.channel.send(`${emoji('giveaway')} Congratulations ${winner}! You won **${prize}**!`);
       } else {
         message.channel.send('No one entered the giveaway.');
       }

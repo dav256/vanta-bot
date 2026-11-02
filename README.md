@@ -38,4 +38,5 @@ Vanta uses application emojis (VoiceMaster interface, tickets, etc.) and falls b
 - Icons live in `assets/emojis/` (file name = emoji name: activity, claim, decrease, disconnect, ghost, increase, information, lock, reveal, unlock).
 - Upload them once (skips names that already exist, safe to rerun): `npm run upload-emojis` or `node scripts/upload_app_emojis.js [folder]` (uses `TOKEN` from `.env`/env).
 - On startup the bot fetches its application emojis by name (`utils/emojis.js`: `emoji(name)` for text, `buttonEmoji(name)` for buttons).
+- All 167 app emojis have semantic aliases in `utils/emojis.js` (`success`, `error`, `warn`, `delete`, `ticket`, `voice_mute`, ...); raw names (`8508delete`) and names without the numeric prefix (`delete`) also work. Check aliases against the live app with `npm run verify-emojis`.
 - Re-run `!voicemaster setup` to post the new 10-button interface.

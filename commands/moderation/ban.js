@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const cases = require('../../utils/cases');
 
@@ -19,7 +20,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0xFFFFFF)
-          .setTitle(`Case #${caseData.id} — Ban`)
+          .setTitle(`${emoji('ban')} Case #${caseData.id} — Ban`)
           .setDescription(`${target.user.tag} has been banned.\n**Reason:** ${reason}`)]
       });
     } catch {

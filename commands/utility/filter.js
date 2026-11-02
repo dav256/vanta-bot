@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Filters')
+          .setTitle(`${emoji('blocked')} Filters`)
           .setDescription('!filter add word\n!filter remove word\n!filter links on/off\n!filter caps on/off\n!filter list')]
       });
     }

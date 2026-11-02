@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor(0xFFFFFF)
-      .setTitle(user.tag)
+      .setTitle(`${emoji('member')} ${user.tag}`)
       .setThumbnail(user.displayAvatarURL({ dynamic: true }))
       .addFields(
         { name: 'ID', value: user.id, inline: true },

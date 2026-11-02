@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const cases = require('../../utils/cases');
 
@@ -29,7 +30,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0xFFFFFF)
-          .setTitle(`Case #${caseData.id} — Mute`)
+          .setTitle(`${emoji('mute')} Case #${caseData.id} — Mute`)
           .setDescription(`${target.user.tag} has been muted for ${duration}.\n**Reason:** ${reason}`)]
       });
     } catch {

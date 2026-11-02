@@ -1,3 +1,4 @@
+const { emoji, buttonEmoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,13 +32,13 @@ module.exports = {
       const panel = await message.channel.send({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('🎫 Support Tickets')
+          .setTitle(`${emoji('ticket')} Support Tickets`)
           .setDescription('Click the button below to open a ticket.')],
         components: [new ActionRowBuilder().addComponents(
           new ButtonBuilder()
             .setCustomId('ticket_open')
             .setLabel('Open Ticket')
-            .setEmoji('🎫')
+            .setEmoji(buttonEmoji('ticket'))
             .setStyle(ButtonStyle.Primary)
         )]
       });
@@ -46,7 +47,7 @@ module.exports = {
       data[message.guild.id] = { category: category.id, panel: panel.id, open: {} };
       saveData(data);
 
-      return message.reply('✅ Ticket system set up.');
+      return message.reply(`${emoji('success')} Ticket system set up.`);
     }
 
     if (sub === 'close') {
@@ -58,7 +59,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0x2B2D31)
-        .setTitle('🎫 Tickets')
+        .setTitle(`${emoji('ticket')} Tickets`)
         .setDescription(
           '`!ticket setup` — Create the ticket panel\n' +
           '`!ticket close` — Close the current ticket (run inside a ticket)'

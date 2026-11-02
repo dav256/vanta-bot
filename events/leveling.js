@@ -1,3 +1,4 @@
+const { emoji } = require('../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -45,7 +46,7 @@ module.exports = (client) => {
       message.channel.send({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setDescription(`🎉 ${message.author} leveled up to **Level ${user.level}**!`)]
+          .setDescription(`${emoji('level')} ${message.author} leveled up to **Level ${user.level}**!`)]
       }).catch(() => {});
     }
 

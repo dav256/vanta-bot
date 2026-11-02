@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { parseEmbed } = require('../../utils/embedParser');
 const { EmbedBuilder } = require('discord.js');
 
@@ -10,7 +11,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('How to use !embed')
+          .setTitle(`${emoji('edit')} How to use !embed`)
           .setDescription(
             '**Step 1:** Type `!embed` followed by your script.\n\n' +
             '**Step 2:** Use these tags:\n' +

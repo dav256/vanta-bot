@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -12,7 +13,7 @@ module.exports = {
       content: null,
       embeds: [new EmbedBuilder()
         .setColor(0xFFFFFF)
-        .setTitle('Pong!')
+        .setTitle(`${emoji('ping')} Pong!`)
         .setDescription(`**Latency:** ${latency}ms\n**API:** ${apiLatency}ms`)]
     });
   }

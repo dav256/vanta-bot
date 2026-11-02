@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 
 const responses = [
@@ -25,7 +26,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0xFFFFFF)
-        .setTitle('Magic 8Ball')
+        .setTitle(`${emoji('fun')} Magic 8Ball`)
         .setDescription(`**Question:** ${args.join(' ')}\n**Answer:** ${response}`)]
     });
   }

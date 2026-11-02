@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +32,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Autoresponders')
+          .setTitle(`${emoji('autoresponder')} Autoresponders`)
           .setDescription('!ar add trigger | response\n!ar remove trigger\n!ar list')]
       });
     }

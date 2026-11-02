@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0xFFFFFF)
-        .setTitle('Vanta Commands')
+        .setTitle(`${emoji('help')} Vanta Commands`)
         .setDescription(list || 'No commands loaded.')]
     });
   }

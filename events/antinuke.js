@@ -1,3 +1,4 @@
+const { emoji } = require('../utils/emojis');
 const { AuditLogEvent, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -48,7 +49,7 @@ module.exports = (client) => {
 
       await logAction(guild, new EmbedBuilder()
         .setColor(0xFF0000)
-        .setTitle('Antinuke Triggered')
+        .setTitle(`${emoji('warn')} Antinuke Triggered`)
         .setDescription(`${member.user.tag} was ${cfg.punishment}ed for exceeding the action threshold.`)
         .setTimestamp());
     }

@@ -1,3 +1,4 @@
+const { emoji } = require('../utils/emojis');
 const wf = require('../utils/wordfilter');
 
 module.exports = (client) => {
@@ -12,7 +13,7 @@ module.exports = (client) => {
 
     if (found) {
       await message.delete().catch(() => {});
-      await message.channel.send(`${message.author}, that word is not allowed.`).then(m => setTimeout(() => m.delete().catch(() => {}), 4000));
+      await message.channel.send(`${emoji('blocked')} ${message.author}, that word is not allowed.`).then(m => setTimeout(() => m.delete().catch(() => {}), 4000));
     }
   });
 };

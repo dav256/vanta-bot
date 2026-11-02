@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antibot')
+          .setTitle(`${emoji('bot')} Antibot`)
           .setDescription(
             '`!antibot enable` — Kick bots that join (unless whitelisted)\n' +
             '`!antibot disable` — Turn off\n' +
@@ -56,7 +57,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antibot Status')
+          .setTitle(`${emoji('bot')} Antibot Status`)
           .addFields(
             { name: 'Enabled', value: c.enabled ? 'Yes' : 'No', inline: true },
             { name: 'Whitelisted Bots', value: c.whitelist.length ? c.whitelist.map(id => `<@${id}>`).join(', ') : 'None' }

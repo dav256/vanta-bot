@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -30,7 +31,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antinuke')
+          .setTitle(`${emoji('shield')} Antinuke`)
           .setDescription(
             '`!antinuke enable` — Turn on antinuke\n' +
             '`!antinuke disable` — Turn off\n' +
@@ -83,7 +84,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Antinuke Status')
+          .setTitle(`${emoji('shield')} Antinuke Status`)
           .addFields(
             { name: 'Enabled', value: cfg.enabled ? 'Yes' : 'No', inline: true },
             { name: 'Threshold', value: String(cfg.threshold), inline: true },

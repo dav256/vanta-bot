@@ -1,3 +1,4 @@
+const { emoji } = require('../utils/emojis');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,7 +23,7 @@ module.exports = (client) => {
     for (const word of cfg.words || []) {
       if (content.includes(word)) {
         await message.delete().catch(() => {});
-        return message.channel.send(message.author.toString() + ' your message contained a blocked word.').then(m => setTimeout(() => m.delete().catch(() => {}), 3000)).catch(() => {});
+        return message.channel.send(emoji('blocked') + ' ' + message.author.toString() + ' your message contained a blocked word.').then(m => setTimeout(() => m.delete().catch(() => {}), 3000)).catch(() => {});
       }
     }
 

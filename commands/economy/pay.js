@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder } = require('discord.js');
 const economy = require('../../utils/economy');
 
@@ -16,7 +17,7 @@ module.exports = {
     return message.reply({
       embeds: [new EmbedBuilder()
         .setColor(0xFFFFFF)
-        .setDescription(`Sent **${amount}** coins to ${target}.`)]
+        .setDescription(`${emoji('pay')} Sent **${amount}** coins to ${target}.`)]
     });
   }
 };

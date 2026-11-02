@@ -1,3 +1,4 @@
+const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -27,6 +28,6 @@ module.exports = {
     data[message.guild.id] = { channel: channel.id, threshold: 3 };
     saveData(data);
 
-    return message.reply(`Starboard set to ${channel} (threshold: 3 ⭐).`);
+    return message.reply(`${emoji('success')} Starboard set to ${channel} (threshold: 3 ⭐).`);
   }
 };

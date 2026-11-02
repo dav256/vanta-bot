@@ -46,7 +46,7 @@ module.exports = {
       if (!role) return message.reply('Mention a role.');
       if (!data[guildId].roles.includes(role.id)) data[guildId].roles.push(role.id);
       saveData(data);
-      return message.reply(`✅ ${role} can now use moderation commands.`);
+      return message.reply(`${emoji('success')} ${role} can now use moderation commands.`);
     }
 
     if (sub === 'remove') {
@@ -54,7 +54,7 @@ module.exports = {
       if (!role) return message.reply('Mention a role.');
       data[guildId].roles = data[guildId].roles.filter(id => id !== role.id);
       saveData(data);
-      return message.reply(`❌ Removed fake perms from ${role}.`);
+      return message.reply(`${emoji('error')} Removed fake perms from ${role}.`);
     }
 
     if (sub === 'list') {
@@ -62,7 +62,7 @@ module.exports = {
       return message.reply({
         embeds: [new EmbedBuilder()
           .setColor(0x2B2D31)
-          .setTitle('Fake Permission Roles')
+          .setTitle(`${emoji('moderator')} Fake Permission Roles`)
           .setDescription(roles)]
       });
     }
