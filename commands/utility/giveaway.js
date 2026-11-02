@@ -6,13 +6,28 @@ module.exports = {
   aliases: ['gstart'],
   permissions: [PermissionFlagsBits.ManageGuild],
   async execute(message, args) {
+    if (args.length < 3) {
+      return message.reply({
+        embeds: [new EmbedBuilder()
+          .setColor(0x2B2D31)
+          .setTitle('How to use !giveaway')
+          .setDescription(
+            '**Step 1:** Duration (how long it runs)\n' +
+            '**Step 2:** Number of winners\n' +
+            '**Step 3:** Prize name\n\n' +
+            '**Format:** `!giveaway <duration> <winners> <prize>`\n\n' +
+            '**Examples:**\n' +
+            '`!giveaway 1h 1 Robux`\n' +
+            '`!giveaway 30m 2 Nitro`\n' +
+            '`!giveaway 1d 1 Special Role`\n\n' +
+            '**Duration options:** `m` (minutes), `h` (hours), `d` (days)'
+          )]
+      });
+    }
+
     const duration = args[0];
     const winners = parseInt(args[1]) || 1;
     const prize = args.slice(2).join(' ');
-
-    if (!duration || !prize) {
-      return message.reply('Usage: `!giveaway 1h 1 Prize name`');
-    }
 
     let ms = 3600000;
     const match = duration.match(/^(\d+)(m|h|d)?$/i);
