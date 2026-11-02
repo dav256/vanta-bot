@@ -1,4 +1,5 @@
 const { parseEmbed } = require('../../utils/embedParser');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'embed',
@@ -7,7 +8,23 @@ module.exports = {
   async execute(message, args) {
     if (!args.length) {
       return message.reply({
-        content: '**Embed Script Example:**\n```\n{embed}\n{title: Hello {user.tag}}\n{description: Welcome to {guild.name}! You are member #{guild.count}.}\n{color: #FFFFFF}\n{thumbnail: {user.avatar}}\n{footer: Kingdom of Christ}\n```\nUse `!embed` followed by your script.'
+        embeds: [new EmbedBuilder()
+          .setColor(0x2B2D31)
+          .setTitle('How to use !embed')
+          .setDescription(
+            '**Step 1:** Type `!embed` followed by your script.\n\n' +
+            '**Step 2:** Use these tags:\n' +
+            '`{title: Your Title}`\n' +
+            '`{description: Your text here}`\n' +
+            '`{color: #FFFFFF}`\n' +
+            '`{thumbnail: {user.avatar}}`\n' +
+            '`{footer: Footer text}`\n\n' +
+            '**Variables you can use:**\n' +
+            '`{user.tag}` `{user.mention}` `{user.avatar}`\n' +
+            '`{guild.name}` `{guild.count}` `{guild.icon}`\n\n' +
+            '**Example:**\n' +
+            '```\n!embed {title: Welcome {user.tag}} {description: You are member #{guild.count} in {guild.name}} {color: #FFFFFF} {thumbnail: {user.avatar}}\n```'
+          )]
       });
     }
 
@@ -18,13 +35,15 @@ module.exports = {
     };
 
     const embed = parseEmbed(script, context);
-    if (!embed) return message.reply('Failed to parse embed script.');
+    if (!embed) {
+      return message.reply('Failed to parse your script. Make sure you use `{title: text}` style tags.');
+    }
 
     try {
       await message.channel.send({ embeds: [embed] });
       await message.delete().catch(() => {});
     } catch (err) {
-      return message.reply('Failed to send embed. Check your script.');
+      return message.reply('Failed to send embed. Check your script for errors.');
     }
   }
 };
