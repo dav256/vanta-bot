@@ -39,7 +39,8 @@ const eventFiles = [
   'giveaways',
   'snipe',
   'sticky',
-  'wordfilter'
+  'wordfilter',
+  'welcome'
 ];
 
 for (const name of eventFiles) {
