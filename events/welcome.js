@@ -1,36 +1,37 @@
-const { EmbedBuilder } = require('discord.js');
+const { Events } = require('discord.js');
+const { parseEmbedScript } = require('../utils/scripting');
 const fs = require('fs');
 const path = require('path');
 
-const dataPath = path.join(__dirname, '../data/welcome.json');
+const file = path.join(__dirname, '..', 'data', 'messages.json');
 
-function getData() {
-  if (!fs.existsSync(dataPath)) return {};
-  return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+function load() {
+  try {
+    if (!fs.existsSync(file)) return {};
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch { return {}; }
 }
 
 module.exports = (client) => {
-  client.on('guildMemberAdd', async (member) => {
-    const data = getData();
-    const config = data[member.guild.id];
-    if (!config || !config.channel) return;
+  client.on(Events.GuildMemberAdd, async (member) => {
+    const data = load();
+    const config = data[member.guild.id]?.welcome;
+    if (!config || !config.script) return;
 
     const channel = member.guild.channels.cache.get(config.channel);
     if (!channel) return;
 
-    let text = config.message || 'Welcome {user} to {guild}! You are member #{count}.';
-    text = text
-      .replace(/{user}/g, member.toString())
-      .replace(/{guild}/g, member.guild.name)
-      .replace(/{count}/g, member.guild.memberCount);
+    const payload = parseEmbedScript(config.script, {
+      user: member.user,
+      guild: member.guild
+    });
 
-    const embed = new EmbedBuilder()
-      .setColor(0xFFFFFF)
-      .setDescription(text)
-      .setThumbnail(member.user.displayAvatarURL({ dynamic: true }));
-
-    channel.send({ embeds: [embed] }).catch(() => {});
+    if (payload) {
+      try {
+        await channel.send(payload);
+      } catch (e) {
+        console.error('Welcome send failed:', e);
+      }
+    }
   });
-
-  console.log('[Events] Welcome loaded');
 };

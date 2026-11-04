@@ -1,28 +1,27 @@
-const fs = require('fs');
-const path = require('path');
-
-const dataPath = path.join(__dirname, '../data/autoresponders.json');
-
-function getData() {
-  if (!fs.existsSync(dataPath)) return {};
-  return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-}
+const ar = require('../utils/autoresponders');
 
 module.exports = (client) => {
   client.on('messageCreate', async (message) => {
-    if (message.author.bot || !message.guild) return;
-    const data = getData();
-    const responses = data[message.guild.id];
-    if (!responses) return;
+    if (!message.guild || message.author.bot) return;
+
+    const responders = ar.get(message.guild.id);
+    if (!responders.length) return;
 
     const content = message.content.toLowerCase();
-    for (const [trigger, response] of Object.entries(responses)) {
-      if (content.includes(trigger)) {
-        message.reply(response).catch(() => {});
+
+    for (const r of responders) {
+      const match = r.exact
+        ? content === r.trigger
+        : content.includes(r.trigger);
+
+      if (match) {
+        try {
+          await message.reply(r.response);
+        } catch {
+          await message.channel.send(r.response).catch(() => {});
+        }
         break;
       }
     }
   });
-
-  console.log('[Events] Autoresponders loaded');
 };
