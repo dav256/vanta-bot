@@ -1,4 +1,4 @@
-const { Events, MessageFlags } = require('discord.js');
+const { Events } = require('discord.js');
 const { parseEmbedScript } = require('../utils/scripting');
 const fs = require('fs');
 const path = require('path');
@@ -15,15 +15,21 @@ function load() {
 module.exports = (client) => {
   client.on(Events.GuildMemberAdd, async (member) => {
     const data = load();
-    const config = data[member.guild.id]?.welcome;
-    if (!config?.script) return;
-    const channel = member.guild.channels.cache.get(config.channel);
-    if (!channel) return;
+    const welcomes = data[member.guild.id]?.welcome;
+    if (!welcomes?.length) return;
 
-    const payload = parseEmbedScript(config.script, { user: member.user, guild: member.guild });
-    if (payload) {
+    for (const config of welcomes) {
+      const channel = member.guild.channels.cache.get(config.channel);
+      if (!channel) continue;
+
+      const payload = parseEmbedScript(config.script, { user: member.user, guild: member.guild });
+      if (!payload) continue;
+
       try {
-        await channel.send(payload);
+        const sent = await channel.send(payload);
+        if (config.selfDestruct && config.selfDestruct >= 6 && config.selfDestruct <= 60) {
+          setTimeout(() => sent.delete().catch(() => {}), config.selfDestruct * 1000);
+        }
       } catch (e) {
         console.error('Welcome send failed:', e);
       }
