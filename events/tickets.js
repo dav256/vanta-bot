@@ -1,67 +1,62 @@
-const { emoji, buttonEmoji } = require('../utils/emojis');
-const { ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-
-const dataPath = path.join(__dirname, '../data/tickets.json');
-
-function getData() {
-  if (!fs.existsSync(dataPath)) return {};
-  return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-}
-
-function saveData(data) {
-  const dir = path.dirname(dataPath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-}
+const { ChannelType, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const tickets = require('../utils/tickets');
 
 module.exports = (client) => {
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
     if (interaction.customId !== 'ticket_open') return;
 
-    const data = getData();
-    const cfg = data[interaction.guild.id];
-    if (!cfg) return interaction.reply({ content: 'Tickets not set up.', ephemeral: true });
+    const config = tickets.get(interaction.guild.id);
+    if (!config.category) return interaction.reply({ content: 'Tickets are not set up.', ephemeral: true });
 
-    const existing = Object.values(cfg.open || {}).find(id => id === interaction.user.id);
-    if (existing) return interaction.reply({ content: 'You already have a ticket open.', ephemeral: true });
+    const existing = Object.values(config.open || {}).find(t => t.userId === interaction.user.id);
+    if (existing) return interaction.reply({ content: 'You already have an open ticket.', ephemeral: true });
 
-    const channel = await interaction.guild.channels.create({
-      name: 'ticket-' + interaction.user.username,
-      type: ChannelType.GuildText,
-      parent: cfg.category,
-      permissionOverwrites: [
-        { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-        { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-        { id: interaction.client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-      ]
-    });
+    try {
+      const channel = await interaction.guild.channels.create({
+        name: `ticket-${interaction.user.username}`,
+        type: ChannelType.GuildText,
+        parent: config.category,
+        permissionOverwrites: [
+          { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+          { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+          ...(config.supportRole ? [{ id: config.supportRole, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }] : [])
+        ]
+      });
 
-    if (!cfg.open) cfg.open = {};
-    cfg.open[channel.id] = interaction.user.id;
-    saveData(data);
+      if (!config.open) config.open = {};
+      config.open[channel.id] = { userId: interaction.user.id, createdAt: Date.now() };
+      tickets.set(interaction.guild.id, config);
 
-    await channel.send({
-      embeds: [new EmbedBuilder()
-        .setColor(0x2B2D31)
-        .setTitle(`${emoji('ticket')} Ticket Opened`)
-        .setDescription(interaction.user.toString() + ' opened a ticket.')],
-      components: [new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket_close').setLabel('Close').setEmoji(buttonEmoji('lock')).setStyle(ButtonStyle.Danger)
-      )]
-    });
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('ticket_close').setLabel('Close').setStyle(ButtonStyle.Danger)
+      );
 
-    interaction.reply({ content: 'Ticket created: ' + channel.toString(), ephemeral: true });
+      await channel.send({
+        embeds: [new EmbedBuilder()
+          .setColor(0xFFFFFF)
+          .setTitle('Ticket Opened')
+          .setDescription(`${interaction.user}, support will be with you shortly.`)],
+        components: [row]
+      });
+
+      await interaction.reply({ content: `Ticket created: ${channel}`, ephemeral: true });
+    } catch {
+      await interaction.reply({ content: 'Failed to create ticket.', ephemeral: true });
+    }
   });
 
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
     if (interaction.customId !== 'ticket_close') return;
-    if (!interaction.channel.name.startsWith('ticket-')) return;
-    await interaction.channel.delete().catch(() => {});
-  });
 
-  console.log('[Events] Tickets loaded');
+    const config = tickets.get(interaction.guild.id);
+    if (config.open?.[interaction.channel.id]) {
+      delete config.open[interaction.channel.id];
+      tickets.set(interaction.guild.id, config);
+    }
+
+    await interaction.reply({ content: 'Closing ticket...' });
+    setTimeout(() => interaction.channel.delete().catch(() => {}), 2000);
+  });
 };
