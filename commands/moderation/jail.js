@@ -1,82 +1,65 @@
-const { emoji } = require('../../utils/emojis');
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-
-const dataPath = path.join(__dirname, '../../data/jail.json');
-
-function getData() {
-  if (!fs.existsSync(dataPath)) return {};
-  return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-}
-
-function saveData(data) {
-  const dir = path.dirname(dataPath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-}
+const punishments = require('../../utils/punishments');
 
 module.exports = {
   name: 'jail',
-  description: 'Jail or unjail a member',
+  description: 'Jail a member (restrict to #jail channel only)',
+  aliases: ['lockup'],
   permissions: [PermissionFlagsBits.ModerateMembers],
-  async execute(message, args) {
-    const sub = args[0]?.toLowerCase();
-    const data = getData();
-    const guildId = message.guild.id;
-
-    if (!data[guildId]) data[guildId] = {};
-
-    if (sub === 'setup') {
-      const role = message.mentions.roles.first();
-      const channel = message.mentions.channels.first();
-      if (!role || !channel) {
-        return message.reply({
-          embeds: [new EmbedBuilder()
-            .setColor(0x2B2D31)
-            .setTitle(`${emoji('jail')} Jail Setup`)
-            .setDescription('Usage: `!jail setup @JailRole #jail-channel`\n\nThis role will be applied when someone is jailed. They should only be able to see the jail channel.')]
-        });
-      }
-      data[guildId].role = role.id;
-      data[guildId].channel = channel.id;
-      saveData(data);
-      return message.reply(`Jail set up: ${role} in ${channel}`);
-    }
-
-    if (sub === 'unjail') {
-      const target = message.mentions.members.first() || message.guild.members.cache.get(args[1]);
-      if (!target) return message.reply('Mention a member to unjail.');
-      const role = message.guild.roles.cache.get(data[guildId]?.role);
-      if (!role) return message.reply('Jail is not set up. Use `!jail setup`');
-      await target.roles.remove(role).catch(() => {});
-      return message.reply(`${target.user.tag} has been unjailed.`);
-    }
-
-    const target = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
+  async execute(message, args, client) {
+    const member = message.mentions.members.first() || message.guild.members.cache.get(args[0]);
     const reason = args.slice(1).join(' ') || 'No reason provided';
 
-    if (!target) {
-      return message.reply({
-        embeds: [new EmbedBuilder()
-          .setColor(0x2B2D31)
-          .setTitle(`${emoji('jail')} Jail Commands`)
-          .setDescription('`!jail setup @role #channel` — Configure jail\n`!jail @user [reason]` — Jail a member\n`!jail unjail @user` — Release a member')]
-      });
+    if (!member) return message.reply('Please mention a member or provide their ID.');
+    if (member.id === message.author.id) return message.reply('You cannot jail yourself.');
+    if (member.id === client.user.id) return message.reply('I cannot jail myself.');
+    if (!member.manageable) return message.reply('I cannot manage this member (role hierarchy).');
+
+    const jailedRole = message.guild.roles.cache.find(r => r.name === 'Jailed');
+    if (!jailedRole) return message.reply('Jailed role not found. Run the setup command first.');
+
+    if (member.roles.cache.has(jailedRole.id)) {
+      return message.reply('This member is already jailed.');
     }
 
-    const role = message.guild.roles.cache.get(data[guildId]?.role);
-    if (!role) return message.reply('Jail is not set up. Use `!jail setup @role #channel`');
+    try {
+      await member.roles.add(jailedRole, `Jailed by ${message.author.tag} | ${reason}`);
 
-    await target.roles.add(role).catch(() => {});
-    const channel = message.guild.channels.cache.get(data[guildId].channel);
-    if (channel) channel.send(`${target} has been jailed. Reason: ${reason}`).catch(() => {});
+      const data = {
+        user: member.user,
+        moderator: message.author,
+        reason,
+        guild: message.guild
+      };
 
-    return message.reply({
-      embeds: [new EmbedBuilder()
-        .setColor(0x2B2D31)
-        .setTitle(`${emoji('jail')} Jailed`)
-        .setDescription(`${target.user.tag} has been jailed.\n**Reason:** ${reason}`)]
-    });
+      const custom = punishments.get(message.guild.id, 'jail');
+      let content = custom ? punishments.replace(custom, data) : null;
+
+      const embed = new EmbedBuilder()
+        .setColor(0xFF6B6B)
+        .setTitle('Member Jailed')
+        .setDescription(content || `${member} has been jailed.`)
+        .addFields(
+          { name: 'Moderator', value: `${message.author}`, inline: true },
+          { name: 'Reason', value: reason, inline: true }
+        )
+        .setTimestamp();
+
+      await message.reply({ content: content && !custom?.includes('{embed}') ? content : null, embeds: [embed] });
+
+      const logsChannel = message.guild.channels.cache.find(c => c.name === 'logs');
+      if (logsChannel) {
+        await logsChannel.send({ embeds: [embed] });
+      }
+
+      try {
+        const dmText = content || `You have been jailed in **${message.guild.name}**.\n**Reason:** ${reason}`;
+        await member.send(dmText);
+      } catch {}
+
+    } catch (error) {
+      console.error(error);
+      message.reply('Failed to jail the member.');
+    }
   }
 };
