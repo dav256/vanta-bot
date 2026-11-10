@@ -11,13 +11,17 @@ module.exports = (client) => {
 
       const builder = new SlashCommandBuilder()
         .setName(cmd.name)
-        .setDescription(cmd.description || 'No description');
+        .setDescription((cmd.description || 'No description').slice(0, 100));
 
-      builder.addStringOption(opt =>
-        opt.setName('input')
-          .setDescription('Arguments for the command')
-          .setRequired(false)
-      );
+      // Optional "args" instead of forcing "input" on every command
+      if (cmd.slashArgs !== false) {
+        builder.addStringOption(opt =>
+          opt
+            .setName('args')
+            .setDescription('Optional arguments (user, amount, reason, etc.)')
+            .setRequired(false)
+        );
+      }
 
       commands.push(builder.toJSON());
     }
@@ -42,7 +46,10 @@ module.exports = (client) => {
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
-    const input = interaction.options.getString('input') || '';
+    const input =
+      interaction.options.getString('args') ||
+      interaction.options.getString('input') ||
+      '';
     const args = input.trim().split(/ +/).filter(Boolean);
 
     const mentions = {
@@ -75,12 +82,13 @@ module.exports = (client) => {
       client,
       content: `/${interaction.commandName} ${input}`.trim(),
       mentions,
+      reference: null,
       reply: async (content) => {
         if (interaction.replied || interaction.deferred) {
           return interaction.followUp(content);
         }
         return interaction.reply(content);
-      },
+      }
     };
 
     const originalSend = interaction.channel.send.bind(interaction.channel);
@@ -97,7 +105,8 @@ module.exports = (client) => {
       type: interaction.channel.type,
       parent: interaction.channel.parent,
       messages: interaction.channel.messages,
-      delete: interaction.channel.delete?.bind(interaction.channel)
+      delete: interaction.channel.delete?.bind(interaction.channel),
+      bulkDelete: interaction.channel.bulkDelete?.bind(interaction.channel)
     };
 
     if (command.permissions && interaction.member) {
