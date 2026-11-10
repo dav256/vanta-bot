@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, REST, Routes, Collection } = require('discord.js');
+const commandRoles = require('../utils/commandRoles');
 
 module.exports = (client) => {
   client.on('ready', async () => {
@@ -13,7 +14,6 @@ module.exports = (client) => {
         .setName(cmd.name)
         .setDescription((cmd.description || 'No description').slice(0, 100));
 
-      // Optional "args" instead of forcing "input" on every command
       if (cmd.slashArgs !== false) {
         builder.addStringOption(opt =>
           opt
@@ -109,7 +109,15 @@ module.exports = (client) => {
       bulkDelete: interaction.channel.bulkDelete?.bind(interaction.channel)
     };
 
-    if (command.permissions && interaction.member) {
+    const roleCheck = commandRoles.memberCanUse(interaction.member, command.name);
+    if (roleCheck === false) {
+      return interaction.reply({
+        content: 'You do not have a role that can use this command.',
+        ephemeral: true
+      });
+    }
+
+    if (roleCheck !== true && command.permissions && interaction.member) {
       const missing = interaction.member.permissions.missing(command.permissions);
       if (missing.length) {
         return interaction.reply({
