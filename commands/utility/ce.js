@@ -13,10 +13,18 @@ module.exports = {
         embeds: [new EmbedBuilder()
           .setColor(0xFFFFFF)
           .setTitle('Create Embed')
-          .setDescription('Create embeds or components messages.')
+          .setDescription('Create embeds with `$v` separators.')
           .addFields(
-            { name: 'Usage', value: '`ce {embed}$v{title: Hello}$v{description: World}`', inline: false },
-            { name: 'Components', value: 'Supports `{container}`, `{button}`, `$v` separators', inline: false }
+            {
+              name: 'Example',
+              value: '`ce {embed}$v{title: Hello}$v{description: World}$v{color: #1a365d}`',
+              inline: false
+            },
+            {
+              name: 'Fields',
+              value: '`{field: Name | Value}`',
+              inline: false
+            }
           )]
       });
     }
@@ -28,18 +36,27 @@ module.exports = {
         channel: message.channel
       });
 
+      if (!result) {
+        return message.reply('Could not parse that script.');
+      }
+
       if (result.flags) {
         await message.channel.send({
           components: result.components,
           flags: result.flags
         });
+      } else if (result.embeds?.length) {
+        await message.channel.send({ embeds: result.embeds });
       } else if (result.embed) {
         await message.channel.send({ embeds: [result.embed] });
+      } else if (result.content) {
+        await message.channel.send({ content: result.content });
       } else {
-        await message.channel.send(result.content || script);
+        await message.channel.send({ content: script.slice(0, 2000) });
       }
     } catch (err) {
-      return message.reply(`Script error: ${err.message}\nTry checking your $v separators and braces.`);
+      console.error('[ce]', err);
+      return message.reply(`Script error: ${err.message}\nTry checking your \`$v\` separators and braces.`);
     }
   }
 };
