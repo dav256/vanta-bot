@@ -4,11 +4,20 @@ const {
   createAudioResource,
   AudioPlayerStatus,
   VoiceConnectionStatus,
+  StreamType,
   entersState,
   getVoiceConnection
 } = require('@discordjs/voice');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+let ffmpegPath = 'ffmpeg';
+try {
+  ffmpegPath = require('ffmpeg-static');
+} catch {
+  /* system ffmpeg */
+}
 
 const file = path.join(__dirname, '..', 'data', 'music.json');
 
@@ -43,10 +52,18 @@ function ensureSession(guildId) {
       volume: 80,
       radio: false,
       radioUrl: null,
-      textChannel: null
+      textChannel: null,
+      ffmpeg: null
     });
   }
   return sessions.get(guildId);
+}
+
+function killFfmpeg(session) {
+  if (session?.ffmpeg) {
+    try { session.ffmpeg.kill('SIGKILL'); } catch {}
+    session.ffmpeg = null;
+  }
 }
 
 function createPlayer(guildId) {
@@ -57,8 +74,9 @@ function createPlayer(guildId) {
   session.player = player;
 
   player.on(AudioPlayerStatus.Idle, () => {
+    killFfmpeg(session);
     if (session.radio && session.radioUrl) {
-      playUrl(guildId, session.radioUrl, true);
+      setTimeout(() => playUrl(guildId, session.radioUrl, true), 1000);
       return;
     }
     playNext(guildId);
@@ -66,6 +84,7 @@ function createPlayer(guildId) {
 
   player.on('error', (err) => {
     console.error(`[Music] Player error (${guildId}):`, err.message);
+    killFfmpeg(session);
     if (session.radio && session.radioUrl) {
       setTimeout(() => playUrl(guildId, session.radioUrl, true), 3000);
     } else {
@@ -91,6 +110,14 @@ async function connect(voiceChannel, textChannel) {
     });
     session.connection = connection;
 
+    try {
+      await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
+    } catch (err) {
+      try { connection.destroy(); } catch {}
+      sessions.delete(guildId);
+      throw new Error('Could not join voice. Give the bot Connect + Speak.');
+    }
+
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
       try {
         await Promise.race([
@@ -98,7 +125,7 @@ async function connect(voiceChannel, textChannel) {
           entersState(connection, VoiceConnectionStatus.Connecting, 5_000)
         ]);
       } catch {
-        connection.destroy();
+        try { connection.destroy(); } catch {}
         sessions.delete(guildId);
       }
     });
@@ -112,12 +139,47 @@ async function connect(voiceChannel, textChannel) {
 function playUrl(guildId, url, isRadio = false) {
   const session = ensureSession(guildId);
   if (!session.player) createPlayer(guildId);
+  killFfmpeg(session);
 
   try {
-    const resource = createAudioResource(url, { inlineVolume: true });
-    if (resource.volume) resource.volume.setVolume(session.volume / 100);
+    const args = [
+      '-reconnect', '1',
+      '-reconnect_streamed', '1',
+      '-reconnect_delay_max', '5',
+      '-i', url,
+      '-analyzeduration', '0',
+      '-loglevel', 'error',
+      '-f', 's16le',
+      '-ar', '48000',
+      '-ac', '2',
+      'pipe:1'
+    ];
+
+    const ff = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    session.ffmpeg = ff;
+
+    ff.stderr.on('data', (chunk) => {
+      const msg = chunk.toString().trim();
+      if (msg) console.warn('[ffmpeg]', msg.slice(0, 200));
+    });
+
+    ff.on('error', (err) => {
+      console.error('[ffmpeg spawn]', err.message);
+      if (session.textChannel) {
+        session.textChannel.send(
+          'Music error: FFmpeg missing. Run `npm install ffmpeg-static` then restart.'
+        ).catch(() => {});
+      }
+    });
+
+    const resource = createAudioResource(ff.stdout, {
+      inputType: StreamType.Raw,
+      inlineVolume: true
+    });
+    if (resource.volume) resource.volume.setVolume((session.volume || 80) / 100);
+
     session.current = {
-      title: isRadio ? '24/7 Radio' : (url.slice(0, 80) || 'Track'),
+      title: isRadio ? '24/7 Radio' : (url.split('/').pop() || 'Track').slice(0, 80),
       url,
       radio: isRadio
     };
@@ -132,12 +194,10 @@ function playUrl(guildId, url, isRadio = false) {
 function playNext(guildId) {
   const session = getSession(guildId);
   if (!session) return;
-
   if (session.radio && session.radioUrl) {
     playUrl(guildId, session.radioUrl, true);
     return;
   }
-
   const next = session.queue.shift();
   if (!next) {
     session.current = null;
@@ -150,15 +210,15 @@ function playNext(guildId) {
 function enqueue(guildId, track) {
   const session = ensureSession(guildId);
   session.queue.push(track);
-  if (!session.current && session.player?.state?.status !== AudioPlayerStatus.Playing) {
-    playNext(guildId);
-  }
+  const playing = session.player?.state?.status === AudioPlayerStatus.Playing;
+  if (!session.current && !playing) playNext(guildId);
   return session.queue.length;
 }
 
 function skip(guildId) {
   const session = getSession(guildId);
   if (!session?.player) return false;
+  killFfmpeg(session);
   session.player.stop(true);
   return true;
 }
@@ -170,9 +230,10 @@ function stop(guildId) {
   session.radio = false;
   session.radioUrl = null;
   session.current = null;
+  killFfmpeg(session);
   session.player?.stop(true);
   const conn = getVoiceConnection(guildId);
-  if (conn) conn.destroy();
+  if (conn) { try { conn.destroy(); } catch {} }
   sessions.delete(guildId);
 }
 
@@ -202,7 +263,6 @@ function enableRadio(guildId, url) {
   session.radioUrl = url;
   session.queue = [];
   playUrl(guildId, url, true);
-
   const data = load();
   data[guildId] = data[guildId] || {};
   data[guildId].radioUrl = url;
@@ -224,8 +284,7 @@ function disableRadio(guildId) {
 }
 
 function getRadioConfig(guildId) {
-  const data = load();
-  return data[guildId] || {};
+  return load()[guildId] || {};
 }
 
 function setRadioChannel(guildId, channelId, url) {
@@ -238,20 +297,7 @@ function setRadioChannel(guildId, channelId, url) {
 }
 
 module.exports = {
-  connect,
-  enqueue,
-  playUrl,
-  playNext,
-  skip,
-  stop,
-  pause,
-  resume,
-  setVolume,
-  enableRadio,
-  disableRadio,
-  getSession,
-  getRadioConfig,
-  setRadioChannel,
-  load,
-  save
+  connect, enqueue, playUrl, playNext, skip, stop, pause, resume,
+  setVolume, enableRadio, disableRadio, getSession, getRadioConfig,
+  setRadioChannel, load, save
 };
