@@ -2,8 +2,6 @@ const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { loadCommands } = require('./handlers/commandHandler');
 const messageHandler = require('./handlers/messageHandler');
 const slashHandler = require('./handlers/slashHandler');
-const path = require('path');
-const { loadAppEmojis } = require('./utils/emojis');
 require('dotenv').config();
 
 const client = new Client({
@@ -21,20 +19,14 @@ const client = new Client({
 
 const PREFIX = process.env.PREFIX || '!';
 
-client.once('ready', async () => {
+client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
-  const commandsPath = path.join(__dirname, 'commands');
-  loadCommands(client, commandsPath);
-  // Application emojis (falls back to Unicode if none are uploaded)
-  await loadAppEmojis(client);
+  loadCommands(client, './commands');
 });
 
-// Safely load event handlers — missing files will not crash the bot
 const eventFiles = [
   'antinuke',
   'antiraid',
-  'antibot',
-  'leveling',
   'messages',
   'filters',
   'starboard',
@@ -46,7 +38,7 @@ const eventFiles = [
   'snipe',
   'sticky',
   'wordfilter',
-  'welcome'
+  'musicRadio'
 ];
 
 for (const name of eventFiles) {
